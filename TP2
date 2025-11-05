@@ -1,4 +1,3 @@
-TP2: Cloud Features & Shellscripts
 I. Un p'tit nom DNS
 Définissez un nom de domaine pour joindre notre azure1.tp2
 
@@ -10,45 +9,45 @@ vortix@vortixasus:~$ az network public-ip show \
 > --resource-group GRP_Prod_2025 \
 > --name azure1.tp1-ip
 {
-  "ddosSettings": {
-    "protectionMode": "VirtualNetworkInherited"
-  },
-  "dnsSettings": {
-    "domainNameLabel": "prod-tp2-vortix",
-    "fqdn": "prod-tp2-vortix.westeurope.cloudapp.azure.com"
-  },
-  "etag": "W/\"b1c2d3e4-f5a6-b7c8-d9e0-f1a2b3c4d5e6\"",
-  "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Network/publicIPAddresses/azure1.tp1-ip",
-  "idleTimeoutInMinutes": 4,
-  "ipAddress": "20.105.90.17",
-  "ipConfiguration": {
-    "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Network/networkInterfaces/azure1.tp1234_z1/ipConfigurations/ipconfig1",
-    "resourceGroup": "GRP_Prod_2025"
-  },
-  "ipTags": [],
-  "location": "westeurope",
-  "name": "azure1.tp1-ip",
-  "provisioningState": "Succeeded",
-  "publicIPAddressVersion": "IPv4",
-  "publicIPAllocationMethod": "Static",
-  "resourceGroup": "GRP_Prod_2025",
-  "resourceGuid": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
-  "sku": {
-    "name": "Standard",
-    "tier": "Regional"
-  },
-  "type": "Microsoft.Network/publicIPAddresses",
-  "zones": [
-    "1"
-  ]
+  "ddosSettings": {
+    "protectionMode": "VirtualNetworkInherited"
+  },
+  "dnsSettings": {
+    "domainNameLabel": "prod-tp2-vortix",
+    "fqdn": "prod-tp2-vortix.westeurope.cloudapp.azure.com"
+  },
+  "etag": "W/\"b1c2d3e4-f5a6-b7c8-d9e0-f1a2b3c4d5e6\"",
+  "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Network/publicIPAddresses/azure1.tp1-ip",
+  "idleTimeoutInMinutes": 4,
+  "ipAddress": "20.105.90.17",
+  "ipConfiguration": {
+    "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Network/networkInterfaces/azure1.tp1234_z1/ipConfigurations/ipconfig1",
+    "resourceGroup": "GRP_Prod_2025"
+  },
+  "ipTags": [],
+  "location": "westeurope",
+  "name": "azure1.tp1-ip",
+  "provisioningState": "Succeeded",
+  "publicIPAddressVersion": "IPv4",
+  "publicIPAllocationMethod": "Static",
+  "resourceGroup": "GRP_Prod_2025",
+  "resourceGuid": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+  "sku": {
+    "name": "Standard",
+    "tier": "Regional"
+  },
+  "type": "Microsoft.Network/publicIPAddresses",
+  "zones": [
+    "1"
+  ]
 }
 vortix@vortixasus:~$ az network public-ip show \
 > --resource-group GRP_Prod_2025 \
 > --name azure1.tp1-ip \
 > --query "{VM:ipConfiguration.id, IP:ipAddress, FQDN:dnsSettings.fqdn}" -o table
-VM                                                                                                                              IP               FQDN
-------------------------------------------------------------------------------------------------------------------------------  ---------------  -----------------------------------------------
-/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Network/networkInterfaces/azure1.tp1234_z1/ipConfigurations/ipconfig1  20.105.90.17     prod-tp2-vortix.westeurope.cloudapp.azure.com
+VM                                                                                                                              IP               FQDN
+------------------------------------------------------------------------------------------------------------------------------  ---------------  -----------------------------------------------
+/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Network/networkInterfaces/azure1.tp1234_z1/ipConfigurations/ipconfig1  20.105.90.17     prod-tp2-vortix.westeurope.cloudapp.azure.com
 
 vortix@vortixasus:~$ curl -I http://prod-tp2-vortix.westeurope.cloudapp.azure.com:8000
 HTTP/1.1 200 OK
@@ -76,14 +75,14 @@ vortix@vortixasus:~$ az vm create \
 The default value of '--size' will be changed to 'Standard_D2s_v5' from 'Standard_DS1_v2' in a future release.
 SSH key files '/home/vortix/.ssh/id_rsa' and '/home/vortix/.ssh/id_rsa.pub' have been generated under ~/.ssh to allow SSH access to the VM.
 {
-  "fqdns": "",
-  "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Compute/virtualMachines/azure3.tp2",
-  "location": "westeurope",
-  "macAddress": "00-0D-3A-B1-C2-D3",
-  "powerState": "VM running",
-  "privateIpAddress": "10.20.0.5",
-  "publicIpAddress": "",
-  "resourceGroup": "GRP_Prod_2025"
+  "fqdns": "",
+  "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Compute/virtualMachines/azure3.tp2",
+  "location": "westeurope",
+  "macAddress": "00-0D-3A-B1-C2-D3",
+  "powerState": "VM running",
+  "privateIpAddress": "10.20.0.5",
+  "publicIpAddress": "",
+  "resourceGroup": "GRP_Prod_2025"
 }
 vortix@vortixasus:~$
 Vérifier que cloud-init a bien fonctionné
@@ -92,65 +91,67 @@ Bash
 
 vortix@azure3:~$ sudo systemctl status cloud-init
 ● cloud-init.service - Cloud-init: Network Stage
-     Loaded: loaded (/lib/systemd/system/cloud-init.service; enabled; vendor preset: enabled)
-     Active: active (exited) since Wed 2025-11-05 14:10:01 UTC; 3min 12s ago
-    Process: 502 ExecStart=/usr/bin/cloud-init init --local (code=exited, status=0/SUCCESS)
-   Main PID: 502 (code=exited, status=0/SUCCESS)
-        CPU: 1.892s
+     Loaded: loaded (/lib/systemd/system/cloud-init.service; enabled; vendor preset: enabled)
+     Active: active (exited) since Wed 2025-11-05 14:10:01 UTC; 3min 12s ago
+    Process: 502 ExecStart=/usr/bin/cloud-init init --local (code=exited, status=0/SUCCESS)
+   Main PID: 502 (code=exited, status=0/SUCCESS)
+        CPU: 1.892s
 Nov 05 14:10:01 azure3 systemd[1]: Finished Cloud-init: Network Stage.
 
 vortix@azure3:~$ cloud-init status
 status: done
 vortix@azure3:~$
-Write your own Utilisez cloud-init pour préconfigurer une VM comme azure2.tp2:
+Write your own
+(Contenu du fichier cloud-init.txt)
 
 YAML
 
 #cloud-config
 packages:
- - update-notifier-common
- - mariadb-server
+ - update-notifier-common
+ - mariadb-server
 runcmd:
- - apt update
- - apt install mariadb-server -y
- - sed -i 's/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
- - systemctl restart mariadb
- - mysql -u root -e "CREATE DATABASE webapp_db;"
- - mysql -u root -e "CREATE USER IF NOT EXISTS 'vortix'@'10.20.0.%' IDENTIFIED BY 'prod_pass_123';"
- - mysql -u root -e "GRANT ALL PRIVILEGES ON webapp_db.* TO 'vortix'@'10.20.0.%';"
- - mysql -u root -e "FLUSH PRIVILEGES;"
- - systemctl enable mariadb || true
- - systemctl start mariadb || true
+ - apt update
+ - apt install mariadb-server -y
+ - sed -i 's/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
+ - systemctl restart mariadb
+ - mysql -u root -e "CREATE DATABASE webapp_db;"
+ - mysql -u root -e "CREATE USER IF NOT EXISTS 'vortix'@'10.20.0.%' IDENTIFIED BY 'prod_pass_123';"
+ - mysql -u root -e "GRANT ALL PRIVILEGES ON webapp_db.* TO 'vortix'@'10.20.0.%';"
+ - mysql -u root -e "FLUSH PRIVILEGES;"
+ - systemctl enable mariadb || true
+ - systemctl start mariadb || true
 Testez que ça fonctionne
 
 Bash
 
 vortix@azure3:~$ mysql -u vortix -p -h 127.0.0.1 webapp_db
 Enter password:
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
 Your MariaDB connection id is 42
 Server version: 10.6.22-MariaDB-0ubuntu0.22.04.1 Ubuntu 22.04
 Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
 Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 MariaDB [webapp_db]>
 III. Gestion de secrets
-Un premier secret Récupérer votre secret depuis la VM
+1. Un premier secret
+Récupérer votre secret depuis la VM
 
 Bash
 
 vortix@azure1:~$ az login --identity --allow-no-subscriptions
 [{
-  "environmentName": "AzureCloud",
-  "id": "413600cf-bd4e-4c7c-8a61-69e73cddf731",
-  "isDefault": true,
-  "name": "N/A(tenant level account)",
-  "state": "Enabled",
-  "tenantld": "413600cf-bd4e-4c7c-8a61-69e73cddf731",
-  "user": {
-    "assignedIdentityInfo": "MSI",
-    "name": "systemAssignedIdentity",
-    "type": "servicePrincipal"
-  }
+  "environmentName": "AzureCloud",
+  "id": "413600cf-bd4e-4c7c-8a61-69e73cddf731",
+  "isDefault": true,
+  "name": "N/A(tenant level account)",
+  "state": "Enabled",
+  "tenantld": "413600cf-bd4e-4c7c-8a61-69e73cddf731",
+  "user": {
+    "assignedIdentityInfo": "MSI",
+    "name": "systemAssignedIdentity",
+    "type": "servicePrincipal"
+  }
 }]
 vortix@azure1:~$ VAULT_NAME="kv-prod-tp2-vortix"
 vortix@azure1:~$ az keyvault secret show \
@@ -159,7 +160,10 @@ vortix@azure1:~$ az keyvault secret show \
 > --query value -o tsv
 vortix_secret
 vortix@azure1:~$
-Gérer les secrets de l'application A. Script pour récupérer les secrets Coder un ptit script bash: get_secrets.sh
+2. Gérer les secrets de l'application
+A. Script pour récupérer les secrets
+
+(Script get_secrets.sh)
 
 Bash
 
@@ -189,7 +193,9 @@ DB_NAME=webapp_db
 DB_USER=vortix
 DB_PASSWORD=SuperSecurePassFromVault
 vortix@azure1:~$
-B. Exécution automatique Ajouter le script en ExecStartPre= dans webapp.service
+B. Exécution automatique
+
+(Contenu de webapp.service)
 
 Ini, TOML
 
@@ -212,18 +218,18 @@ vortix@azure1:~$ sudo systemctl daemon-reload
 vortix@azure1:~$ sudo systemctl restart webapp
 vortix@azure1:~$ sudo systemctl status webapp
 ● webapp.service - Super Webapp PROD
-     Loaded: loaded (/etc/systemd/system/webapp.service; disabled; preset: enabled)
-     Active: active (running) since Wed 2025-11-05 14:15:10 UTC; 2s ago
-    Process: 2698 ExecStartPre=/usr/local/bin/get_secrets.sh (code=exited, status=0/SUCCESS)
-   Main PID: 2748 (python)
-      Tasks: 1 (limit: 2261)
-     Memory: 47.5M
-        CPU: 2.968s
-     CGroup: /system.slice/webapp.service
-             └─2748 /opt/webapp/bin/python app.py
-C. Secret Flask Intégrez la gestion du secret Flask dans votre script get_secrets.sh
+     Loaded: loaded (/etc/systemd/system/webapp.service; disabled; preset: enabled)
+     Active: active (running) since Wed 2025-11-05 14:15:10 UTC; 2s ago
+    Process: 2698 ExecStartPre=/usr/local/bin/get_secrets.sh (code=exited, status=0/SUCCESS)
+   Main PID: 2748 (python)
+      Tasks: 1 (limit: 2261)
+     Memory: 47.5M
+        CPU: 2.968s
+     CGroup: /system.slice/webapp.service
+             └─2748 /opt/webapp/bin/python app.py
+C. Secret Flask
 
-script à jour avec le flask, dernière version de get_secrets.sh
+(Script get_secrets.sh final)
 
 Bash
 
@@ -247,15 +253,15 @@ vortix@azure1:~$ sudo systemctl daemon-reload
 vortix@azure1:~$ sudo systemctl restart webapp
 vortix@azure1:~$ sudo systemctl status webapp
 ● webapp.service - Super Webapp PROD
-     Loaded: loaded (/etc/systemd/system/webapp.service; disabled; preset: enabled)
-     Active: active (running) since Wed 2025-11-05 14:17:15 UTC; 2s ago
-    Process: 3459 ExecStartPre=/usr/local/bin/get_secrets.sh (code=exited, status=0/SUCCESS)
-   Main PID: 3532 (python)
-      Tasks: 1 (limit: 2261)
-     Memory: 47.5M
-        CPU: 3.708s
-     CGroup: /system.slice/webapp.service
-             └─3532 /opt/webapp/bin/python app.py
+     Loaded: loaded (/etc/systemd/system/webapp.service; disabled; preset: enabled)
+     Active: active (running) since Wed 2025-11-05 14:17:15 UTC; 2s ago
+    Process: 3459 ExecStartPre=/usr/local/bin/get_secrets.sh (code=exited, status=0/SUCCESS)
+   Main PID: 3532 (python)
+      Tasks: 1 (limit: 2261)
+     Memory: 47.5M
+        CPU: 3.708s
+     CGroup: /system.slice/webapp.service
+             └─3532 /opt/webapp/bin/python app.py
 
 vortix@azure1:~$ sudo cat /opt/webapp/.env
 # Flask Configuration
@@ -276,19 +282,19 @@ Bash
 
 vortix@azure2:~$ az login --identity
 [{
-  "environmentName": "AzureCloud",
-  "homeTenantId": "413600cf-bd4e-4c7c-8a61-69e73cddf731",
-  "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
-  "isDefault": true,
-  "managedByTenants": [],
-  "name": "Azure for Students",
-  "state": "Enabled",
-  "tenantld": "413600cf-bd4e-4c7c-8a61-69e73cddf731",
-  "user": {
-    "assignedIdentityInfo": "MSI",
-    "name": "systemAssignedIdentity",
-    "type": "servicePrincipal"
-  }
+  "environmentName": "AzureCloud",
+  "homeTenantId": "413600cf-bd4e-4c7c-8a61-69e73cddf731",
+  "id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "isDefault": true,
+  "managedByTenants": [],
+  "name": "Azure for Students",
+  "state": "Enabled",
+  "tenantld": "413600cf-bd4e-4c7c-8a61-69e73cddf731",
+  "user": {
+    "assignedIdentityInfo": "MSI",
+    "name": "systemAssignedIdentity",
+    "type": "servicePrincipal"
+  }
 }]
 vortix@azure2:~$ echo "test blob" > /tmp/initial_upload.txt
 vortix@azure2:~$ STORAGE_ACCOUNT="prodbackuptp2vortix"
@@ -301,14 +307,14 @@ vortix@azure2:~$ az storage blob upload \
 > --auth-mode login
 Finished[#############################################################] 100.0000%
 {
-  "client_request_id": "7ce58d2a-b82c-11f0-ba9a-d5a482b91e56",
-  "content_md5": "DnrJcqzWQR9VCdYYghbtkQ==",
-  "date": "2025-11-05T14:20:00+00:00",
-  "etag": "\"0x8DE1A50619E49E1\"",
-  "lastModified": "2025-11-05T14:20:00+00:00",
-  "request_id": "3b962070-e01e-0032-6d39-4ca7e6000000",
-  "request_server_encrypted": true,
-  "version": "2022-11-02"
+  "client_request_id": "7ce58d2a-b82c-11f0-ba9a-d5a482b91e56",
+  "content_md5": "DnrJcqzWQR9VCdYYghbtkQ==",
+  "date": "2025-11-05T14:20:00+00:00",
+  "etag": "\"0x8DE1A50619E49E1\"",
+  "lastModified": "2025-11-05T14:20:00+00:00",
+  "request_id": "3b962070-e01e-0032-6d39-4ca7e6000000",
+  "request_server_encrypted": true,
+  "version": "2022-11-02"
 }
 vortix@azure2:~$
 Download un fichier du Blob Container
@@ -322,26 +328,28 @@ vortix@vortixasus:~$ az storage blob download \
 > --file ./telecharge_vortix.txt
 Finished[#############################################################] 100.0000%
 {
-  "container": "db-backups-prod",
-  "content": "",
-  "contentMd5": null,
-  "deleted": false,
-  "properties": {
-    "blobType": "BlockBlob",
-    "contentLength": 28,
-    "creationTime": "2025-11-05T14:20:00+00:00",
-    "deletedTime": null,
-    "etag": "\"0x8DE1A50619E49E1\"",
-    "lastModified": "2025-11-05T14:20:00+00:00"
-  }
+  "container": "db-backups-prod",
+  "content": "",
+  "contentMd5": null,
+  "deleted": false,
+  "properties": {
+    "blobType": "BlockBlob",
+    "contentLength": 28,
+    "creationTime": "2025-11-05T14:20:00+00:00",
+    "deletedTime": null,
+    "etag": "\"0x8DE1A50619E49E1\"",
+    "lastModified": "2025-11-05T14:20:00+00:00"
+  }
 }
 vortix@vortixasus:~$
-B. Utilisateur MySQL Créer un ptit user SQL pour notre script
+B. Utilisateur MySQL
+
+Créer un ptit user SQL pour notre script
 
 Bash
 
 vortix@azure2:~$ sudo mysql
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
 MariaDB [(none)]> DROP USER IF EXISTS 'backupuser'@'azure2.internal.cloudapp.net';
 Query OK, 0 rows affected (0.003 sec)
 MariaDB [(none)]> CREATE USER IF NOT EXISTS 'backupuser'@'localhost' IDENTIFIED BY 'backup_pass_prod';
@@ -358,9 +366,11 @@ Bash
 
 vortix@azure2:~$ mysql -u backupuser -p -h 127.0.0.1 webapp_db
 Enter password:
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
 MariaDB [webapp_db]>
-C. Script db_backup.sh Ecrire le script db_backup.sh
+C. Script db_backup.sh
+
+Ecrire le script db_backup.sh
 
 Bash
 
@@ -381,11 +391,11 @@ tar -czf $TAR_FILE $BACKUP_FILE
 #upload (Identity)
 az login --identity > /dev/null
 az storage blob upload \
-  --account-name $SA_NAME \
-  --container-name $CONTAINER_NAME \
-  --file $TAR_FILE \
-  --name "db_backups_prod/${TAR_FILE##*/}" \
-  --auth-mode login
+  --account-name $SA_NAME \
+  --container-name $CONTAINER_NAME \
+  --file $TAR_FILE \
+  --name "db_backups_prod/${TAR_FILE##*/}" \
+  --auth-mode login
 #supr
 rm $BACKUP_FILE $TAR_FILE
 exit 0
@@ -401,12 +411,12 @@ vortix@azure2:~$ sudo -u backupuser /usr/local/bin/db_backup.sh
 tar: Removing leading `/' from member names
 Finished[#############################################################] 100.0000%
 {
-  "client_request_id": "9cc81c89-b832-11f0-ba9a-d5a482b91e56",
-  "content_md5": "o8QCnKrU10mqiVNbotc37Q==",
-  "date": "2025-11-05T14:25:00+00:00",
-  "etag": "\"0x8DE1A56816A7706\"",
-  "lastModified": "2025-11-05T14:25:00+00:00",
-  "request_id": "2478c7db-b01e-005d-053f-4cad15000000"
+  "client_request_id": "9cc81c89-b832-11f0-ba9a-d5a482b91e56",
+  "content_md5": "o8QCnKrU10mqiVNbotc37Q==",
+  "date": "2025-11-05T14:25:00+00:00",
+  "etag": "\"0x8DE1A56816A7706\"",
+  "lastModified": "2025-11-05T14:25:00+00:00",
+  "request_id": "2478c7db-b01e-005d-053f-4cad15000000"
 }
 vortix@azure2:~$
 Récupérer le blob (Vérification)
@@ -423,7 +433,9 @@ vortix@azure2:~$ az storage blob list \
 db_backups_prod/db_backup_20251105_142500.tar.gz
 initial_upload.txt
 vortix@azure2:~$
-D. Service Ecrire un fichier /etc/systemd/system/db_backup.service
+D. Service
+
+Ecrire un fichier /etc/systemd/system/db_backup.service
 
 Ini, TOML
 
@@ -446,12 +458,14 @@ Bash
 vortix@azure2:~$ sudo systemctl start db_backup.service
 vortix@azure2:~$ sudo systemctl status db_backup.service
 ● db_backup.service - service sauvegarde db vers blob
-     Loaded: loaded (/etc/systemd/system/db_backup.service; disabled; vendor preset: enabled)
-     Active: inactive (dead)
+     Loaded: loaded (/etc/systemd/system/db_backup.service; disabled; vendor preset: enabled)
+     Active: inactive (dead)
 Nov 05 14:30:33 azure2 db_backup.sh[10865]: "etag": "\"0x8DE1A594A77C2E3\"",
 Nov 05 14:30:34 azure2 systemd[1]: db_backup.service: Deactivated successfully.
 Nov 05 14:30:34 azure2 systemd[1]: Finished service sauvegarde db vers blob.
-E. Timer Ecrire un fichier /etc/systemd/system/db_backup.timer
+E. Timer
+
+Ecrire un fichier /etc/systemd/system/db_backup.timer
 
 Ini, TOML
 
@@ -480,6 +494,6 @@ Attendre et observer
 Bash
 
 vortix@azure2:~$ sudo systemctl list-timers
-NEXT                        LEFT          LAST                        PASSED      UNIT                         ACTIVATES
-Wed 2025-11-05 14:32:00 UTC 48s left      Wed 2025-11-05 14:31:12 UTC 8s ago      db_backup.timer              db_backup.service
+NEXT                        LEFT          LAST                        PASSED      UNIT                         ACTIVATES
+Wed 2025-11-05 14:32:00 UTC 48s left      Wed 2025-11-05 14:31:12 UTC 8s ago      db_backup.timer              db_backup.service
 vortix@azure2:~$
