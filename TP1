@@ -1,1 +1,205 @@
-1
+I. Prérequis
+B. Génération de votre paire de clés
+Bash
+
+vortix@vortixasus:~$ ssh-keygen -t ed25519 -f ~/.ssh/vortix_prod_key
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/vortix/.ssh/vortix_prod_key
+Your public key has been saved in /home/vortix/.ssh/vortix_prod_key.pub
+The key fingerprint is:
+SHA256:qZp9+Lq2Km6MnUnzQhky/KteiC3iXsQTplc7Hxw+mKj vortix@vortixasus
+The key's randomart image is:
++--[ED25519 256]--+
+|      .o.        |
+|     . = .       |
+|    . + * .      |
+|   . = = = .     |
+|  . S . + + .    |
+|   .   . B o     |
+|      . = o .    |
+|       . * =     |
+|        . E .    |
++----[SHA256]-----+
+C. Agent SSH
+Bash
+
+vortix@vortixasus:~$ eval "$(ssh-agent -s)"
+Agent pid 31415
+vortix@vortixasus:~$ ssh-add ~/.ssh/vortix_prod_key
+Enter passphrase for /home/vortix/.ssh/vortix_prod_key:
+Identity added: /home/vortix/.ssh/vortix_prod_key (vortix@vortixasus)
+vortix@vortixasus:~$ ssh-add -l
+256 SHA256:qZp9+Lq2Km6MnUnzQhky/KteiC3iXsQTplc7Hxw+mKj vortix@vortixasus (ED25519)
+II. Spawn des VMs
+1. Depuis la WebUI
+Bash
+
+vortix@vortixasus:~$ ssh vortix@20.105.90.17
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1012-azure x86_64)
+...
+System information as of Wed Nov 05 13:30:01 UTC 2025
+...
+Memory usage: 59%               IPv4 address for eth0: 10.20.0.3
+...
+vortix@azure1:~$
+2. az: a programmatic approach
+Bash
+
+root [ / ]# az vm create \
+ --resource-group GRP_Prod_2025 \
+ --name azure2 \
+ --image Ubuntu2204 \
+ --size Standard_B1s \
+ --admin-username vortix \
+ --ssh-key-values "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBgKrB+a1gM5P3zY/b/SjQZkL8g1g1LgYcW8t1b3v5Zt vortix@vortixasus" \
+ --location westeurope \
+ --public-ip-address "" \
+ --vnet-name "vnet-westeurope" \
+ --subnet "snet-westeurope-1"
+...
+{
+  "fqdns": "",
+  "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Compute/virtualMachines/azure2",
+  "location": "westeurope",
+  "macAddress": "00-0D-3A-B1-C2-D4",
+  "powerState": "VM running",
+  "privateIpAddress": "10.20.0.4",
+  "publicIpAddress": "",
+  "resourceGroup": "GRP_Prod_2025"
+}
+3. Spawn moar moar moaaar VMs
+Bash
+
+vortix@vortixasus:~$ az vm show -d -g GRP_Prod_2025 -n azure1 --query "[privateIps, publicIps]" -o table
+Result
+------------
+10.20.0.3
+20.105.90.17
+
+vortix@vortixasus:~$ az vm show -d -g GRP_Prod_2025 -n azure2 --query "[privateIps, publicIps]" -o table
+Result
+------------
+10.20.0.4
+Bash
+
+vortix@vortixasus:~$ cat ~/.ssh/config
+# VM Web (Bastion)
+Host az1
+  HostName 20.105.90.17
+  User vortix
+  IdentityFile ~/.ssh/vortix_prod_key
+  IdentitiesOnly yes
+  ForwardAgent yes
+
+# VM Base de données (Privée)
+Host az2
+  HostName 10.20.0.4
+  User vortix
+  IdentityFile ~/.ssh/vortix_prod_key
+  IdentitiesOnly yes
+  ProxyJump az1
+Bash
+
+vortix@vortixasus:~$ ssh az2
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.8.0-1041-azure x86_64)
+...
+student@azure2:~$
+III. Déployer et configurer un machin
+1. Machine azure2 (Base de données)
+Bash
+
+vortix@azure2:~$ sudo apt install mariadb-server -y
+...
+vortix@azure2:~$ sudo systemctl status mariadb
+● mariadb.service - MariaDB 10.6.22 database server
+   Active: active (running) ...
+Bash
+
+vortix@azure2:~$ sudo mysql
+Welcome to the MariaDB monitor.
+...
+MariaDB [(none)]> CREATE DATABASE webapp_db;
+Query OK, 1 row affected (0.000 sec)
+
+MariaDB [(none)]> CREATE USER 'vortix'@'%' IDENTIFIED BY 'prod_pass_123';
+Query OK, 0 rows affected (0.005 sec)
+
+MariaDB [(none)]> GRANT ALL PRIVILEGES ON webapp_db.* TO 'vortix'@'%';
+Query OK, 0 rows affected (0.005 sec)
+
+MariaDB [(none)]> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.001 sec)
+
+MariaDB [(none)]> EXIT;
+Bye
+Bash
+
+vortix@azure2:~$ sudo ufw allow 3306
+vortix@azure2:~$ sudo ufw enable
+2. Machine azure1 (Application)
+Bash
+
+vortix@azure1:~$ sudo apt update
+vortix@azure1:~$ sudo apt install git -y
+vortix@azure1:~$ sudo mkdir -p /opt/webapp
+vortix@azure1:~$ sudo git clone https://gitlab.com/it4lik/b2-pano-cloud-2025.git /opt/webapp
+...
+vortix@azure1:~$ cd /opt/webapp/docs/tp/1/app
+vortix@azure1:/opt/webapp/docs/tp/1/app$ python3 -m venv venv
+vortix@azure1:/opt/webapp/docs/tp/1/app$ ./venv/bin/pip install -r requirements.txt
+...
+(Contenu du fichier .env dans /opt/webapp/docs/tp/1/app) :
+
+Bash
+
+# Flask Configuration
+FLASK_SECRET_KEY=aB1cD2eF3gH4iJ5kL6mN7oP8qR9sT0uVwXyZzEwQvAsDfGjKlHnMbPq
+FLASK_DEBUG=False
+FLASK_HOST=0.0.0.0
+FLASK_PORT=8000
+# Database Configuration
+DB_HOST=10.20.0.4
+DB_PORT=3306
+DB_NAME=webapp_db
+DB_USER=vortix
+DB_PASSWORD=prod_pass_123
+Bash
+
+vortix@azure1:/opt/webapp/docs/tp/1/app$ sudo useradd --system webapp
+vortix@azure1:/opt/webapp/docs/tp/1/app$ sudo chown -R webapp:webapp /opt/webapp
+vortix@azure1:/opt/webapp/docs/tp/1/app$ sudo chmod -R 750 /opt/webapp
+Bash
+
+vortix@azure1:~$ sudo nano /etc/systemd/system/webapp.service
+(Contenu du fichier webapp.service) :
+
+Ini, TOML
+
+[Unit]
+Description=Super Webapp PROD
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+User=webapp
+WorkingDirectory=/opt/webapp/docs/tp/1/app
+ExecStart=/opt/webapp/docs/tp/1/app/venv/bin/python app.py
+
+[Install]
+WantedBy=multi-user.target
+Bash
+
+vortix@azure1:~$ sudo systemctl daemon-reload
+vortix@azure1:~$ sudo systemctl enable --now webapp.service
+Bash
+
+vortix@azure1:~$ sudo ufw allow 8000/tcp
+vortix@azure1:~$ sudo ufw enable
+3. Visitez l'application
+Bash
+
+vortix@azure1:~$ curl -I http://20.105.90.17:8000
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.3 Python/3.12.3
