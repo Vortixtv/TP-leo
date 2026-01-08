@@ -1,205 +1,570 @@
-I. Prérequis
-B. Génération de votre paire de clés
-Bash
+🌞 Déterminer l'adresse MAC de vos deux machines
 
-vortix@vortixasus:~$ ssh-keygen -t ed25519 -f ~/.ssh/vortix_prod_key
-Generating public/private ed25519 key pair.
-Enter passphrase (empty for no passphrase):
-Enter same passphrase again:
-Your identification has been saved in /home/vortix/.ssh/vortix_prod_key
-Your public key has been saved in /home/vortix/.ssh/vortix_prod_key.pub
-The key fingerprint is:
-SHA256:qZp9+Lq2Km6MnUnzQhky/KteiC3iXsQTplc7Hxw+mKj vortix@vortixasus
-The key's randomart image is:
-+--[ED25519 256]--+
-|      .o.        |
-|     . = .       |
-|    . + * .      |
-|   . = = = .     |
-|  . S . + + .    |
-|   .   . B o     |
-|      . = o .    |
-|       . * =     |
-|        . E .    |
-+----[SHA256]-----+
-C. Agent SSH
-Bash
+depuis le terminal de chacun des clients (VM Rocky ou VPCS), déterminer son adresse MAC
+une seule commande est nécessaire sur chaque client
 
-vortix@vortixasus:~$ eval "$(ssh-agent -s)"
-Agent pid 31415
-vortix@vortixasus:~$ ssh-add ~/.ssh/vortix_prod_key
-Enter passphrase for /home/vortix/.ssh/vortix_prod_key:
-Identity added: /home/vortix/.ssh/vortix_prod_key (vortix@vortixasus)
-vortix@vortixasus:~$ ssh-add -l
-256 SHA256:qZp9+Lq2Km6MnUnzQhky/KteiC3iXsQTplc7Hxw+mKj vortix@vortixasus (ED25519)
-II. Spawn des VMs
-1. Depuis la WebUI
-Bash
+PC1> show
 
-vortix@vortixasus:~$ ssh vortix@20.105.90.17
-Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-1012-azure x86_64)
-...
-System information as of Wed Nov 05 13:30:01 UTC 2025
-...
-Memory usage: 59%               IPv4 address for eth0: 10.20.0.3
-...
-vortix@azure1:~$
-2. az: a programmatic approach
-Bash
+NAME   IP/MASK              GATEWAY           MAC                LPORT  RHOST:PORT
+PC1    0.0.0.0/0            0.0.0.0           00:50:79:66:68:00  10004  127.0.0.1:10005
+       fe80::250:79ff:fe66:6800/64
 
-root [ / ]# az vm create \
- --resource-group GRP_Prod_2025 \
- --name azure2 \
- --image Ubuntu2204 \
- --size Standard_B1s \
- --admin-username vortix \
- --ssh-key-values "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBgKrB+a1gM5P3zY/b/SjQZkL8g1g1LgYcW8t1b3v5Zt vortix@vortixasus" \
- --location westeurope \
- --public-ip-address "" \
- --vnet-name "vnet-westeurope" \
- --subnet "snet-westeurope-1"
-...
-{
-  "fqdns": "",
-  "id": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/GRP_Prod_2025/providers/Microsoft.Compute/virtualMachines/azure2",
-  "location": "westeurope",
-  "macAddress": "00-0D-3A-B1-C2-D4",
-  "powerState": "VM running",
-  "privateIpAddress": "10.20.0.4",
-  "publicIpAddress": "",
-  "resourceGroup": "GRP_Prod_2025"
+
+PC2> show
+
+NAME   IP/MASK              GATEWAY           MAC                LPORT  RHOST:PORT
+PC2    0.0.0.0/0            0.0.0.0           00:50:79:66:68:01  10002  127.0.0.1:10003
+       fe80::250:79ff:fe66:6801/64
+
+
+IP Setup¶
+🌞 Définir une IP statique sur les deux machines
+
+depuis le terminal des machines Linux
+indiquez dans le compte-rendu l'ensemble des commandes réalisées
+montrez le contenu des fichiers que vous éditez (si vous en éditez)
+🌞 Proof !
+
+PC1> ip 10.1.1.1/24
+Checking for duplicate address...
+PC1 : 10.1.1.1 255.255.255.0
+
+PC1> show
+
+NAME   IP/MASK              GATEWAY           MAC                LPORT  RHOST:PORT
+PC1    10.1.1.1/24          0.0.0.0           00:50:79:66:68:00  10004  127.0.0.1:10005
+       fe80::250:79ff:fe66:6800/64
+
+
+PC2> ip 10.1.1.2/24
+Checking for duplicate address...
+PC1 : 10.1.1.2 255.255.255.0
+
+PC2> show
+
+NAME   IP/MASK              GATEWAY           MAC                LPORT  RHOST:PORT
+PC2    10.1.1.2/24          0.0.0.0           00:50:79:66:68:01  10002  127.0.0.1:10003
+       fe80::250:79ff:fe66:6801/64
+
+
+prouver que votre changement d'IP est effectif, en une commande
+🌞 Effectuer un ping d'une machine à l'autre
+
+c'est la commande ping, sans surprise vous me direz
+
+PC1> ping 10.1.1.2
+84 bytes from 10.1.1.2 icmp_seq=1 ttl=64 time=0.690 ms
+84 bytes from 10.1.1.2 icmp_seq=2 ttl=64 time=0.491 ms
+84 bytes from 10.1.1.2 icmp_seq=3 ttl=64 time=0.516 ms
+84 bytes from 10.1.1.2 icmp_seq=4 ttl=64 time=0.455 ms
+84 bytes from 10.1.1.2 icmp_seq=5 ttl=64 time=0.711 ms
+
+PC2> ping 10.1.1.1
+84 bytes from 10.1.1.1 icmp_seq=1 ttl=64 time=0.704 ms
+84 bytes from 10.1.1.1 icmp_seq=2 ttl=64 time=0.764 ms
+84 bytes from 10.1.1.1 icmp_seq=3 ttl=64 time=0.406 ms
+84 bytes from 10.1.1.1 icmp_seq=4 ttl=64 time=0.777 ms
+84 bytes from 10.1.1.1 icmp_seq=5 ttl=64 time=0.685 ms
+
+Même chose en fast¶
+🌞 Déterminer l'adresse MAC de vos trois machines
+
+PC1> show
+
+NAME   IP/MASK              GATEWAY           MAC                LPORT  RHOST:PORT
+PC1    0.0.0.0/0            0.0.0.0           00:50:79:66:68:00  10006  127.0.0.1:10007
+       fe80::250:79ff:fe66:6800/64
+
+
+PC2> show
+
+NAME   IP/MASK              GATEWAY           MAC                LPORT  RHOST:PORT
+PC2    0.0.0.0/0            0.0.0.0           00:50:79:66:68:01  10008  127.0.0.1:10009
+       fe80::250:79ff:fe66:6801/64
+
+
+PC3> show
+
+NAME   IP/MASK              GATEWAY           MAC                LPORT  RHOST:PORT
+PC3    0.0.0.0/0            0.0.0.0           00:50:79:66:68:02  10010  127.0.0.1:10011
+       ::/0
+
+
+une commande dans le terminal de chaque machine
+🌞 Définir une IP statique sur les trois machines
+
+PC1> ip 10.1.1.1
+Checking for duplicate address...
+PC1 : 10.1.1.1 255.255.255.0
+
+PC2> ip 10.1.1.2
+Checking for duplicate address...
+PC1 : 10.1.1.2 255.255.255.0
+
+PC3> ip 10.1.1.3
+Checking for duplicate address...
+PC1 : 10.1.1.3 255.255.255.0
+
+
+prouver que votre changement d'IP est effectif sur chaque machine
+🌞 Effectuer des ping d'une machine à l'autre
+
+vérifiez que tout le monde peut se joindre
+node1 à node2
+
+PC1> ping 10.1.1.2
+84 bytes from 10.1.1.2 icmp_seq=1 ttl=64 time=0.634 ms
+84 bytes from 10.1.1.2 icmp_seq=2 ttl=64 time=0.598 ms
+84 bytes from 10.1.1.2 icmp_seq=3 ttl=64 time=0.701 ms
+
+node2 à node3
+
+PC2> ping 10.1.1.3
+84 bytes from 10.1.1.3 icmp_seq=1 ttl=64 time=0.652 ms
+84 bytes from 10.1.1.3 icmp_seq=2 ttl=64 time=0.757 ms
+84 bytes from 10.1.1.3 icmp_seq=3 ttl=64 time=0.754 ms
+84 bytes from 10.1.1.3 icmp_seq=4 ttl=64 time=0.661 ms
+
+node1 à node3
+
+PC1> ping 10.1.1.3
+84 bytes from 10.1.1.3 icmp_seq=1 ttl=64 time=0.771 ms
+84 bytes from 10.1.1.3 icmp_seq=2 ttl=64 time=0.930 ms
+84 bytes from 10.1.1.3 icmp_seq=3 ttl=64 time=1.088 ms
+84 bytes from 10.1.1.3 icmp_seq=4 ttl=64 time=0.801 ms
+
+🌞 Afficher la table ARP de node1
+
+on doit y voir les adresses MAC de node2 et node3, associées à leurs adresses IP respectives
+si c'est pas le cas, refais des ping vite fait, pour forcer les clients à refaire les échanges ARP
+
+PC1> show arp
+
+00:50:79:66:68:04  10.1.1.3 expires in 109 seconds
+00:50:79:66:68:01  10.1.1.2 expires in 116 seconds
+
+ Capturer un échange ARP
+
+clic droit sur les câbles pour lancer Wireshark
+il faut des tables ARP vides sur tous les clients avant de faire les tests
+faites un ping de node1 vers node2 pour le test (node1 enverra spontanément et automatiquement une trame ARP)
+📁 p2_arp_node2.pcap
+
+une capture du câble qui part de node2
+on doit voir :
+
+une trame ARP qui arrive de node1
+la réponse de node2
+puis quelques pings
+📁 p2_arp_node3.pcap
+
+une capture du câble qui part de node3
+on doit voir :
+
+une trame ARP qui arrive de node1
+rien d'autre : normalement node3 a ignoré la trame puisqu'elle ne lui était pas destinée
+
+configurer l'ip du serveur dhcp
+
+[vortix@vbox ~]$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:85:88:7e brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.15/24 brd 10.0.2.255 scope global dynamic noprefixroute enp0s3
+       valid_lft 84577sec preferred_lft 84577sec
+    inet6 fd17:625c:f037:2:a00:27ff:fe85:887e/64 scope global dynamic noprefixroute
+       valid_lft 86113sec preferred_lft 14113sec
+    inet6 fe80::a00:27ff:fe85:887e/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+3: enp0s8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:d8:51:bf brd ff:ff:ff:ff:ff:ff
+    inet 192.168.56.103/24 brd 192.168.56.255 scope global dynamic noprefixroute enp0s8
+       valid_lft 577sec preferred_lft 577sec
+    inet6 fe80::8e78:f2cb:a8c8:2e39/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+4: enp0s9: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:d1:bd:a0 brd ff:ff:ff:ff:ff:ff
+    inet 10.1.1.253/24 brd 10.1.1.255 scope global noprefixroute enp0s9
+       valid_lft forever preferred_lft forever
+    inet6 fe80::1d65:504f:c2c:87d6/64 scope link noprefixroute
+       valid_lft forever preferred_lft forever
+
+Setuuuup¶
+➜ Donner un accès Internet à la machine dhcp.tp1.efrei
+
+pour ce faire, ajoutez une carte réseau NAT à la machine dans VirtualBox, à la main
+une fois la machine démarrée, prouvez en une commande que vous avez un accès internet
+
+[vortix@vbox ~]$ ping google.com
+PING google.com (216.58.214.78) 56(84) octets de données.
+64 octets de par10s39-in-f14.1e100.net (216.58.214.78) : icmp_seq=1 ttl=255 temps=18.9 ms
+64 octets de fra15s10-in-f78.1e100.net (216.58.214.78) : icmp_seq=2 ttl=255 temps=18.3 ms
+64 octets de fra15s10-in-f14.1e100.net (216.58.214.78) : icmp_seq=3 ttl=255 temps=19.7 ms
+64 octets de par10s39-in-f14.1e100.net (216.58.214.78) : icmp_seq=4 ttl=255 temps=20.4 ms
+
+🌞 Installer un serveur DHCP
+
+à réaliser sur dhcp.tp1.efrei
+
+sudo dnf -y install dhcp-server
+
+je n'aime pas ré-écrire la roue, et préfère pour vous renvoyer vers des ressources dispos en ligne quand elles sont suffisantes
+installez un serveur DHCP dnsmasq ou kea
+pour des setups simplistes, les tutos/articles de server-world.info sont souvent straightforward
+le serveur DHCP doit démarrer automatiquement quand la machine s'allume
+
+votre serveur DHCP doit attribuer des IP entre 10.1.1.10 et 10.1.1.50
+toutes les commandes nécessaires dans le compte-rendu please
+
+
+sudo nano /etc/dhcp/dhcpd.conf
+
+GNU nano 5.6.1                                                                                   /etc/dhcp/dhcpd.conf                                                                                   Modifié  # create new
+# specify domain name
+option domain-name     "srv.world";
+# specify DNS server's hostname or IP address
+option domain-name-servers     dlp.srv.world;
+# default lease time
+default-lease-time 600;
+# max lease time
+max-lease-time 7200;
+# this DHCP server to be declared valid
+authoritative;
+# specify network address and subnetmask
+subnet 10.1.1.0 netmask 255.255.255.0 {
+    # specify the range of lease IP address
+    range dynamic-bootp 10.1.1.10 10.1.1.50;
+    # specify broadcast address
+    option broadcast-address 10.1.1.255;
 }
-3. Spawn moar moar moaaar VMs
-Bash
 
-vortix@vortixasus:~$ az vm show -d -g GRP_Prod_2025 -n azure1 --query "[privateIps, publicIps]" -o table
-Result
-------------
-10.20.0.3
-20.105.90.17
+sudo systemctl enable --now dhcpd
+sudo firewall-cmd --add-service=dhcp
+sudo firewall-cmd --runtime-to-permanent
+sudo systemctl enable --run dhcpd
 
-vortix@vortixasus:~$ az vm show -d -g GRP_Prod_2025 -n azure2 --query "[privateIps, publicIps]" -o table
-Result
-------------
-10.20.0.4
-Bash
+Proof or you're lying¶
+🌞 Récupérer une IP automatiquement depuis les 3 nodes
 
-vortix@vortixasus:~$ cat ~/.ssh/config
-# VM Web (Bastion)
-Host az1
-  HostName 20.105.90.17
-  User vortix
-  IdentityFile ~/.ssh/vortix_prod_key
-  IdentitiesOnly yes
-  ForwardAgent yes
+là encore, montrez toutes les commandes réalisées
+et le contenu des fichiers que vous éditez, si vous en éditez
+prouver que votre changement d'IP est effectif, en une commande
 
-# VM Base de données (Privée)
-Host az2
-  HostName 10.20.0.4
-  User vortix
-  IdentityFile ~/.ssh/vortix_prod_key
-  IdentitiesOnly yes
-  ProxyJump az1
-Bash
+PC1> show ip
 
-vortix@vortixasus:~$ ssh az2
-Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.8.0-1041-azure x86_64)
-...
-student@azure2:~$
-III. Déployer et configurer un machin
-1. Machine azure2 (Base de données)
-Bash
+NAME        : PC1[1]
+IP/MASK     : 10.1.1.10/24
+GATEWAY     : 0.0.0.0
+DNS         : 180.43.145.38
+DHCP SERVER : 10.1.1.253
+DHCP LEASE  : 543, 600/300/525
+DOMAIN NAME : srv.world
+MAC         : 00:50:79:66:68:00
+LPORT       : 10010
+RHOST:PORT  : 127.0.0.1:10011
+MTU:        : 1500
 
-vortix@azure2:~$ sudo apt install mariadb-server -y
-...
-vortix@azure2:~$ sudo systemctl status mariadb
-● mariadb.service - MariaDB 10.6.22 database server
-   Active: active (running) ...
-Bash
 
-vortix@azure2:~$ sudo mysql
-Welcome to the MariaDB monitor.
-...
-MariaDB [(none)]> CREATE DATABASE webapp_db;
-Query OK, 1 row affected (0.000 sec)
+PC2> show ip
 
-MariaDB [(none)]> CREATE USER 'vortix'@'%' IDENTIFIED BY 'prod_pass_123';
-Query OK, 0 rows affected (0.005 sec)
+NAME        : PC2[1]
+IP/MASK     : 10.1.1.11/24
+GATEWAY     : 0.0.0.0
+DNS         : 180.43.145.38
+DHCP SERVER : 10.1.1.253
+DHCP LEASE  : 560, 600/300/525
+DOMAIN NAME : srv.world
+MAC         : 00:50:79:66:68:01
+LPORT       : 10008
+RHOST:PORT  : 127.0.0.1:10009
+MTU:        : 1500
 
-MariaDB [(none)]> GRANT ALL PRIVILEGES ON webapp_db.* TO 'vortix'@'%';
-Query OK, 0 rows affected (0.005 sec)
+PC3> show ip
 
-MariaDB [(none)]> FLUSH PRIVILEGES;
-Query OK, 0 rows affected (0.001 sec)
+NAME        : PC3[1]
+IP/MASK     : 10.1.1.12/24
+GATEWAY     : 0.0.0.0
+DNS         : 180.43.145.38
+DHCP SERVER : 10.1.1.253
+DHCP LEASE  : 381, 600/300/525
+DOMAIN NAME : srv.world
+MAC         : 00:50:79:66:68:02
+LPORT       : 10012
+RHOST:PORT  : 127.0.0.1:10013
+MTU:        : 1500
 
-MariaDB [(none)]> EXIT;
-Bye
-Bash
 
-vortix@azure2:~$ sudo ufw allow 3306
-vortix@azure2:~$ sudo ufw enable
-2. Machine azure1 (Application)
-Bash
+🌞 Bail DHCP
 
-vortix@azure1:~$ sudo apt update
-vortix@azure1:~$ sudo apt install git -y
-vortix@azure1:~$ sudo mkdir -p /opt/webapp
-vortix@azure1:~$ sudo git clone https://gitlab.com/it4lik/b2-pano-cloud-2025.git /opt/webapp
-...
-vortix@azure1:~$ cd /opt/webapp/docs/tp/1/app
-vortix@azure1:/opt/webapp/docs/tp/1/app$ python3 -m venv venv
-vortix@azure1:/opt/webapp/docs/tp/1/app$ ./venv/bin/pip install -r requirements.txt
-...
-(Contenu du fichier .env dans /opt/webapp/docs/tp/1/app) :
+le serveur DHCP a créé un bail DHCP quand il a proposé une adresse au client
+genre il a enregistré dans un fichier toutes les infos concernant ce client
+bah trouvez et montrez moi ce fichier !
 
-Bash
+sudo nano  /var/lib/dhcpd/dhcpd.leases
 
-# Flask Configuration
-FLASK_SECRET_KEY=aB1cD2eF3gH4iJ5kL6mN7oP8qR9sT0uVwXyZzEwQvAsDfGjKlHnMbPq
-FLASK_DEBUG=False
-FLASK_HOST=0.0.0.0
-FLASK_PORT=8000
-# Database Configuration
-DB_HOST=10.20.0.4
-DB_PORT=3306
-DB_NAME=webapp_db
-DB_USER=vortix
-DB_PASSWORD=prod_pass_123
-Bash
+# The format of this file is documented in the dhcpd.leases(5) manual page.
+# This lease file was written by isc-dhcp-4.4.2b1
 
-vortix@azure1:/opt/webapp/docs/tp/1/app$ sudo useradd --system webapp
-vortix@azure1:/opt/webapp/docs/tp/1/app$ sudo chown -R webapp:webapp /opt/webapp
-vortix@azure1:/opt/webapp/docs/tp/1/app$ sudo chmod -R 750 /opt/webapp
-Bash
+# authoring-byte-order entry is generated, DO NOT DELETE
+authoring-byte-order little-endian;
 
-vortix@azure1:~$ sudo nano /etc/systemd/system/webapp.service
-(Contenu du fichier webapp.service) :
+server-duid "\000\001\000\0010\357\323\245\010\000'\321\275\240";
 
-Ini, TOML
+lease 10.1.1.10 {
+  starts 2 2026/01/06 14:53:33;
+  ends 2 2026/01/06 15:03:33;
+  cltt 2 2026/01/06 14:53:33;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+lease 10.1.1.11 {
+  starts 2 2026/01/06 14:53:57;
+  ends 2 2026/01/06 15:03:57;
+  cltt 2 2026/01/06 14:53:57;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:01;
+  uid "\001\000Pyfh\001";
+  client-hostname "PC21";
+}
+lease 10.1.1.12 {
+  starts 2 2026/01/06 14:54:21;
+  ends 2 2026/01/06 15:04:21;
+  cltt 2 2026/01/06 14:54:21;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:02;
+  uid "\001\000Pyfh\002";
+  client-hostname "PC31";
+}
 
-[Unit]
-Description=Super Webapp PROD
-Requires=network-online.target
-After=network-online.target
+[vortix@localhost ~]$ cat /var/lib/dhcpd/dhcpd.leases | grep -A 10 "10.1.1.10"
+lease 10.1.1.10 {
+  starts 2 2026/01/06 14:53:33;
+  ends 2 2026/01/06 15:03:33;
+  tstp 2 2026/01/06 15:03:33;
+  cltt 2 2026/01/06 14:53:33;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+--
+lease 10.1.1.10 {
+  starts 2 2026/01/06 14:57:46;
+  ends 2 2026/01/06 15:07:46;
+  cltt 2 2026/01/06 14:57:46;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+--
+lease 10.1.1.10 {
+  starts 2 2026/01/06 15:02:50;
+  ends 2 2026/01/06 15:12:50;
+  cltt 2 2026/01/06 15:02:50;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+--
+lease 10.1.1.10 {
+  starts 2 2026/01/06 15:07:52;
+  ends 2 2026/01/06 15:17:52;
+  cltt 2 2026/01/06 15:07:52;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+--
+lease 10.1.1.10 {
+  starts 2 2026/01/06 15:11:55;
+  ends 2 2026/01/06 15:21:55;
+  cltt 2 2026/01/06 15:11:55;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+--
+lease 10.1.1.10 {
+  starts 2 2026/01/06 15:16:57;
+  ends 2 2026/01/06 15:26:57;
+  cltt 2 2026/01/06 15:16:57;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+--
+lease 10.1.1.10 {
+  starts 2 2026/01/06 15:21:59;
+  ends 2 2026/01/06 15:31:59;
+  cltt 2 2026/01/06 15:21:59;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+--
+lease 10.1.1.10 {
+  starts 2 2026/01/06 15:27:01;
+  ends 2 2026/01/06 15:37:01;
+  cltt 2 2026/01/06 15:27:01;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+--
+lease 10.1.1.10 {
+  starts 2 2026/01/06 15:32:03;
+  ends 2 2026/01/06 15:42:03;
+  cltt 2 2026/01/06 15:32:03;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet 00:50:79:66:68:00;
+  uid "\001\000Pyfh\000";
+  client-hostname "PC11";
+}
+[vortix@localhost ~]$
 
-[Service]
-User=webapp
-WorkingDirectory=/opt/webapp/docs/tp/1/app
-ExecStart=/opt/webapp/docs/tp/1/app/venv/bin/python app.py
+🌞 Installez et configurez un serveur DHCP sur votre machine attaquante
 
-[Install]
-WantedBy=multi-user.target
-Bash
+il doit uniquement faire serveur DHCP (car il peut aussi faire serveur DNS)
+il doit attribuer des adresses IP entre 10.1.1.210 et 10.1.1.250
 
-vortix@azure1:~$ sudo systemctl daemon-reload
-vortix@azure1:~$ sudo systemctl enable --now webapp.service
-Bash
+# create new
+# specify domain name
+option domain-name     "srv.world";
+# specify DNS server's hostname or IP address
+option domain-name-servers     dlp.srv.world;
+# default lease time
+default-lease-time 600;
+# max lease time
+max-lease-time 7200;
+# this DHCP server to be declared valid
+authoritative;
+# specify network address and subnetmask
+subnet 10.1.1.0 netmask 255.255.255.0 {
+    # specify the range of lease IP address
+    range dynamic-bootp 10.1.1.210 10.1.1.250;
+    # specify broadcast address
+    option broadcast-address 10.1.1.255;
+}
 
-vortix@azure1:~$ sudo ufw allow 8000/tcp
-vortix@azure1:~$ sudo ufw enable
-3. Visitez l'application
-Bash
+systemctl enable --now dhcpd
 
-vortix@azure1:~$ curl -I http://20.105.90.17:8000
-HTTP/1.1 200 OK
-Server: Werkzeug/3.1.3 Python/3.12.3
+
+🌞 Test !
+
+d'abord, stoppez le service DHCP "légitime" sur la machine dhcp.tp1.efrei
+
+[vortix@vbox ~]$ sudo systemctl stop dhcpd
+[vortix@vbox ~]$ sudo systemctl status dhcpd
+× dhcpd.service - DHCPv4 Server Daemon
+     Loaded: loaded (/usr/lib/systemd/system/dhcpd.service; enabled; preset: disabled)
+     Active: failed (Result: exit-code) since Tue 2026-01-06 19:19:59 CET; 1h 56min ago
+       Docs: man:dhcpd(8)
+             man:dhcpd.conf(5)
+    Process: 808 ExecStart=/usr/sbin/dhcpd -f -cf /etc/dhcp/dhcpd.conf -user dhcpd -group dhcpd --no-pid $DHCPDARGS (co>
+   Main PID: 808 (code=exited, status=1/FAILURE)
+        CPU: 15ms
+
+janv. 06 19:19:59 vbox dhcpd[808]: have been made to the base software release in order to make
+janv. 06 19:19:59 vbox dhcpd[808]: it work better with this distribution.
+janv. 06 19:19:59 vbox dhcpd[808]:
+janv. 06 19:19:59 vbox dhcpd[808]: Please report issues with this software via:
+janv. 06 19:19:59 vbox dhcpd[808]: https://bugs.rockylinux.org/
+janv. 06 19:19:59 vbox dhcpd[808]:
+janv. 06 19:19:59 vbox dhcpd[808]: exiting.
+janv. 06 19:19:59 vbox systemd[1]: dhcpd.service: Main process exited, code=exited, status=1/FAILURE
+janv. 06 19:19:59 vbox systemd[1]: dhcpd.service: Failed with result 'exit-code'.
+janv. 06 19:19:59 vbox systemd[1]: Failed to start DHCPv4 Server Daemon.
+lines 1-19/19 (END)
+
+vérifier qu'un client (VPCS) récupère bien une adresse IP dans la range configurée avec dnsmasq de la machine attaquante
+on vérifie d'abord chill que la machine attaquante fait correctement tourner un serveur DHCP
+
+PC5> ip dhcp
+DDORA
+PC5> show ip  IP 10.1.1.214/24
+
+NAME        : PC5[1]
+IP/MASK     : 10.1.1.214/24
+GATEWAY     : 0.0.0.0
+DNS         : 180.43.145.38
+DHCP SERVER : 10.1.1.254
+DHCP LEASE  : 597, 600/300/525
+DOMAIN NAME : srv.world
+MAC         : 00:50:79:66:68:04
+LPORT       : 10054
+RHOST:PORT  : 127.0.0.1:10055
+MTU:        : 1500
+
+PC5>
+
+
+Now race !
+
+rallumez le serveur DHCP légitime
+demandez une IP avec un client (VPCS) et voyez qui répond
+faites-le plusieurs fois pour voir si c'est consistant
+
+show ip  IP 10.1.1.216/24
+
+NAME        : PC2[1]
+IP/MASK     : 10.1.1.216/24
+GATEWAY     : 0.0.0.0
+DNS         : 180.43.145.38
+DHCP SERVER : 10.1.1.254
+DHCP LEASE  : 385, 544/272/476
+DOMAIN NAME : srv.world
+MAC         : 00:50:79:66:68:06
+LPORT       : 10004
+RHOST:PORT  : 127.0.0.1:10005
+MTU:        : 1500
+
+
+je vous conseille de pop un nouveau VPCS à chaque fois, c'est très rapide
+➜ Wireshark this please
+
+gagnez la course avec la machine attaquante 🚲
+capturez cette course :d
+
+
+
+
+
+
+
